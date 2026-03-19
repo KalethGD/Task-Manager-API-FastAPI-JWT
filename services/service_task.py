@@ -4,11 +4,11 @@ from models import Task, User
 
 
 # Funcion get_tasks que se encargara de traer todas las tareas existentes en la base de datos
-def get_tasks(user_id: int, db: Session, is_admin: bool = False) -> list[Task]:
+def get_tasks(user_id: int, db: Session, is_admin: bool = False, skip: int = 0, limit: int = 20) -> list[Task]:
     query = db.query(Task).options(joinedload(Task.owner))
     if is_admin:
-        return query.all()
-    return query.filter(Task.user_id == user_id).all()
+        return query.offset(skip).limit(limit).all()
+    return query.filter(Task.user_id == user_id).offset(skip).limit(limit).all()
 
 # Funcion get_task que se encargara de traer una tarea en especifico por su ID
 def get_task(task_id: int, user_id: int, db: Session, is_admin: bool = False) -> Task | None:

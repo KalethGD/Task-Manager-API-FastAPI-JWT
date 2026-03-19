@@ -233,6 +233,30 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Controles de paginación de tareas -->
+                <div
+                    class="flex items-center justify-between px-6 py-4 border-t border-gray-200"
+                >
+                    <button
+                        onclick="prevTaskPage()"
+                        id="prevTaskPage"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        ← Anterior
+                    </button>
+                    <span
+                        id="taskPageInfo"
+                        class="text-gray-600 text-sm font-medium"
+                        >Página 1</span
+                    >
+                    <button
+                        onclick="nextTaskPage()"
+                        id="nextTaskPage"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        Siguiente →
+                    </button>
+                </div>
             </div>
         </div>
         <!-- Fin contenido principal -->

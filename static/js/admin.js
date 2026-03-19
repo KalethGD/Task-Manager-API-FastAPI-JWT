@@ -1,4 +1,6 @@
 let allTasksCache = [];
+let currentTaskSkip = 0;
+const TASK_PAGE_LIMIT = 10;
 
 // Obtener token de localStorage
 function getToken() {
@@ -66,9 +68,12 @@ async function loadStats() {
 // Cargar total de tareas
 async function loadTotalTasks() {
     try {
-        const response = await fetchWithAuth("/tasks/get_tasks", {
-            method: "GET",
-        });
+        const response = await fetchWithAuth(
+            "/tasks/get_tasks?skip=0&limit=9999",
+            {
+                method: "GET",
+            },
+        );
 
         if (response.ok) {
             const tasks = await response.json();
@@ -237,14 +242,18 @@ async function loadTasks() {
     if (overlay) overlay.classList.remove("hidden");
 
     try {
-        const response = await fetchWithAuth("/tasks/get_tasks", {
-            method: "GET",
-        });
+        const response = await fetchWithAuth(
+            `/tasks/get_tasks?skip=${currentTaskSkip}&limit=${TASK_PAGE_LIMIT}`,
+            {
+                method: "GET",
+            },
+        );
 
         if (response.ok) {
             const tasks = await response.json();
             allTasksCache = tasks; // Guardado en cache para futuros filtros
             renderTasks(tasks);
+            updateTaskPagination(tasks.length);
         } else {
             console.error("Error en la respuesta:", response.status);
         }
@@ -263,6 +272,28 @@ async function loadTasks() {
     } finally {
         // Ocultar overlay siempre, incluso si hay error
         if (overlay) overlay.classList.add("hidden");
+    }
+}
+
+function updateTaskPagination(itemsCount) {
+    const prevBtn = document.getElementById("prevTaskPage");
+    const nextBtn = document.getElementById("nextTaskPage");
+    const pageInfo = document.getElementById("taskPageInfo");
+    const currentPage = Math.floor(currentTaskSkip / TASK_PAGE_LIMIT) + 1;
+    if (pageInfo) pageInfo.textContent = `Página ${currentPage}`;
+    if (prevBtn) prevBtn.disabled = currentTaskSkip === 0;
+    if (nextBtn) nextBtn.disabled = itemsCount < TASK_PAGE_LIMIT;
+}
+
+function nextTaskPage() {
+    currentTaskSkip += TASK_PAGE_LIMIT;
+    loadTasks();
+}
+
+function prevTaskPage() {
+    if (currentTaskSkip >= TASK_PAGE_LIMIT) {
+        currentTaskSkip -= TASK_PAGE_LIMIT;
+        loadTasks();
     }
 }
 

@@ -16,6 +16,8 @@ router = APIRouter(
 # Endpoin para obtener todos los usuarios
 @router.get('/', response_model=list[schema_user.UserResponse], status_code=status.HTTP_200_OK)
 def get_all_users(
+    skip: int = 0,
+    limit: int = 20,
     admin: User = Depends(require_admin), 
     db: Session = Depends(get_db)):
 
@@ -23,7 +25,7 @@ def get_all_users(
     Obtener todos los usuarios 
     REQUIERE: Rol administrador
     """
-    return service_user.get_users(db)
+    return service_user.get_users(db, skip, limit)
 
 # Endpoint para obetener un usuario por su ID
 @router.get('/{user_id}', response_model=schema_user.UserResponse, status_code=status.HTTP_200_OK)

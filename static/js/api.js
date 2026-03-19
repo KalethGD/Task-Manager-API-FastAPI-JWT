@@ -2,6 +2,9 @@ const taskForm = document.querySelector("#createTaskForm");
 const taskTitle = document.querySelector("#taskTitle");
 const tasksList = document.querySelector("#tasksList");
 
+let currentSkip = 0;
+const PAGE_LIMIT = 10;
+
 // Obtener token de localStorage
 function getToken() {
     return localStorage.getItem("access_token");
@@ -48,11 +51,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Función para cargar tareas
 const loadTasks = async () => {
     try {
-        const response = await fetchWithAuth("/tasks/get_tasks");
+        const response = await fetchWithAuth(
+            `/tasks/get_tasks?skip=${currentSkip}&limit=${PAGE_LIMIT}`,
+        );
 
         if (response.ok) {
             const tasks = await response.json();
             displayTasks(tasks);
+            updatePaginationControls(tasks.length);
         } else {
             tasksList.innerHTML = `<p class="text-red-500 text-center">Error al cargar tareas</p>`;
         }
@@ -62,6 +68,28 @@ const loadTasks = async () => {
             '<p class="text-red-500 text-center">Error de conexión</p>';
     }
 };
+
+function updatePaginationControls(itemsCount) {
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+    const pageInfo = document.getElementById("pageInfo");
+    const currentPage = Math.floor(currentSkip / PAGE_LIMIT) + 1;
+    if (pageInfo) pageInfo.textContent = `Página ${currentPage}`;
+    if (prevBtn) prevBtn.disabled = currentSkip === 0;
+    if (nextBtn) nextBtn.disabled = itemsCount < PAGE_LIMIT;
+}
+
+function nextPage() {
+    currentSkip += PAGE_LIMIT;
+    loadTasks();
+}
+
+function prevPage() {
+    if (currentSkip >= PAGE_LIMIT) {
+        currentSkip -= PAGE_LIMIT;
+        loadTasks();
+    }
+}
 
 // Función para crear tarea
 const createTask = async (title) => {

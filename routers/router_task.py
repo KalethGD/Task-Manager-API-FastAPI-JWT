@@ -12,10 +12,10 @@ router = APIRouter(prefix='/tasks', tags=['Tasks'])
 
 
 @router.get('/get_tasks', response_model=list[schema_task.TaskResponseWithUser], status_code=status.HTTP_200_OK)
-def get_tasks(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_tasks(skip: int = 0, limit: int = 20, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """ Endpoin que se encargara de hacer la peticion GET para traer todas las Tareas existentes"""
     is_admin = current_user.role == 'admin'
-    return service_task.get_tasks(current_user.id, db, is_admin)
+    return service_task.get_tasks(current_user.id, db, is_admin, skip, limit)
 
 @router.get('/get_task/{task_id}', response_model=schema_task.TaskResponse, status_code=status.HTTP_200_OK)
 def get_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
